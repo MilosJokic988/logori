@@ -14,7 +14,7 @@ function Map() {
 
        map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: 'https://tiles.openfreemap.org/styles/liberty',
+     style: 'https://tiles.openfreemap.org/styles/dark',
       center: [16.92839, 45.28033],
       zoom: 10,
     })
