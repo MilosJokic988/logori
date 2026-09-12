@@ -1,8 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
-import * as maplibregl from 'maplibre-gl'
+import {
+  Map as MapLibreMap,
+  Marker,
+  Popup,
+  NavigationControl,
+  setWorkerUrl,
+} from 'maplibre-gl'
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import 'maplibre-gl/dist/maplibre-gl.css'
+
 import LocationPanel from './LocationPanel'
 import locations from './data/locations'
+
+setWorkerUrl(workerUrl)
 
 function Map() {
   const mapContainer = useRef(null)
@@ -12,35 +22,36 @@ function Map() {
   useEffect(() => {
     if (map.current) return
 
-       map.current = new maplibregl.Map({
+    map.current = new MapLibreMap({
       container: mapContainer.current,
-     style: 'https://tiles.openfreemap.org/styles/dark',
+      style: 'https://tiles.openfreemap.org/styles/dark',
       center: [16.92839, 45.28033],
       zoom: 10,
     })
 
     map.current.on('load', () => {
-  console.log('MAPA JE UCITANA')
+      console.log('MAPA JE UCITANA')
 
-  map.current.resize()
+      map.current.resize()
 
-  setTimeout(() => {
-    map.current?.resize()
-  }, 300)
-})
+      setTimeout(() => {
+        map.current?.resize()
+      }, 300)
+    })
 
-map.current.on('error', (event) => {
-  console.error('MAPLIBRE GRESKA:', event.error)
-})
+    map.current.on('error', (event) => {
+      console.error('MAPLIBRE GRESKA:', event.error)
+    })
 
     map.current.addControl(
-      new maplibregl.NavigationControl(),
+      new NavigationControl(),
       'top-right'
     )
+
     const markers = []
 
     locations.forEach((location) => {
-      const popup = new maplibregl.Popup({
+      const popup = new Popup({
         offset: 30,
         closeButton: true,
       }).setHTML(`
@@ -65,10 +76,6 @@ map.current.on('error', (event) => {
         </div>
       `)
 
-      /*
-       * КРУЖНИ ФОТО MARKER
-       */
-
       const markerElement = document.createElement('div')
 
       markerElement.className = 'location-marker'
@@ -78,7 +85,7 @@ map.current.on('error', (event) => {
           `url("${location.photos[0].image}")`
       }
 
-      const marker = new maplibregl.Marker({
+      const marker = new Marker({
         element: markerElement,
         anchor: 'center',
       })
@@ -87,10 +94,6 @@ map.current.on('error', (event) => {
         .addTo(map.current)
 
       markers.push(marker)
-
-      /*
-       * ОТВАРАЊЕ ДОСИЈЕ
-       */
 
       popup.on('open', () => {
         const button = document.querySelector(
@@ -114,10 +117,6 @@ map.current.on('error', (event) => {
       map.current = null
     }
   }, [])
-
-  /*
-   * ПРИКАЖИ ЛОКАЦИЈУ НА МАПИ
-   */
 
   const showOnMap = () => {
     if (!selectedLocation || !map.current) return
